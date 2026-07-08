@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.log
+.ipynb_checkpoints/
+# scratch / large model checkpoints are never committed
+*.safetensors
+scratch*.json
+/tmp_*
