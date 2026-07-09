@@ -11,6 +11,7 @@ baselines for context; those are separate published methods and are **not** impl
 |---|---|
 | **SVD (plain)** | Truncated-SVD reconstruction of each weak expert's `gate`/`up`/`down`, minimising Frobenius weight error `||W - W_r||`. Data-agnostic. |
 | **SVD (activation-aware)** | Initialise `U,V` from the plain SVD, then **refine `U,V` by alternating least squares** to minimise the **output** error `||XW - X.U.V^T||` over gate-weighted calibration activations (NNCF `lora_correction`-style). Same rank/shape as plain SVD; the difference is that `U,V` are data-fitted, not the raw SVD factors. |
+| **SVD (activation-aware + mean-baseline)** | Activation-aware as above, but first strip a fixed rank-1 baseline `B = (1/H)*ones([O,H])` from `W` (it maps each token to the mean of its input channels). `U,V` then fit only the residual `W - B`, so all `rank` directions model the deviation from the mean instead of re-learning it; reconstruction adds `B` back: `W_r = (U V)^T + B`. Enabled with `--mean-baseline`. |
 
 Both reconstruct **in place** (same shape as the original weight), so they measure the *accuracy
 ceiling* of a rank-r approximation. Realising the memory saving would require storing `U,V` separately
@@ -123,11 +124,6 @@ python -m svd_compression.compress --model $MODEL --method actaware --frac 0.25 
   - Qwen (`bos_token_id is None`, trained without BOS): **0-shot, no chat template** (paper `eval_mc.py`) is correct.
   - Gemma (requires a leading `<bos>`): plain-text `tok(prompt)` sets `add_bos_token=False`, so 0-shot no-chat *silently omits* the BOS the model was trained on, giving a uniform ~random ~48% artifact. Two valid fixes are reported: **5-shot chat-template** (the template string starts with `<bos>`), and **0-shot with `add_bos_token=True` forced** (Qwen-comparable). The forced-BOS 0-shot works (baseline 66.66, not random) but sits below chat-template because this is an instruct model.
 - `svd_compression/evaluate.py` auto-picks the protocol by `tokenizer.bos_token_id`. The Gemma tables report both.
-
-## The single-GPU OOM caveat
-SVD reconstructs experts *in place*, so the model stays full size (35B is ~69GB). The 248k-vocab fp32
-logit head (~7.5GB) then does not fit alongside it on one 80GB GPU during MMLU. Pass `--shard` to spread
-the model over 2 GPUs (`device_map=auto`) for the eval. (Gemma at ~52GB fits on one GPU.)
 
 ## Layout
 ```
