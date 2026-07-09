@@ -65,5 +65,14 @@
     "phase": "mmlu",
     "mmlu_0shot_bos": 52.23,
     "seconds": 677
+  },
+  {
+    "label": "qwen36-svd-aware-w50-r128-meanbaseline",
+    "method": "actaware",
+    "frac": 0.5,
+    "rank": 128,
+    "phase": "mmlu",
+    "mmlu_0shot": 23.07,
+    "seconds": 3231
   }
 ]

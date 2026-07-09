@@ -79,7 +79,7 @@ strips a fixed rank-1 `(1/H)*ones` term before fitting.
 | SVD plain | 50% | 128 | 83.70/84.38 | 22.95 |
 | SVD-activation aware | 50% | 128 | 72.86/73.09 | 23.02 |
 | SVD plain | 50% | 256 | **89.08/90.22** | 22.96 |
-| SVD-activation aware + mean-baseline | 50% | 128 | 71.27/71.42 | eval |
+| SVD-activation aware + mean-baseline | 50% | 128 | 71.27/71.42 | 23.07 |
 
 ### Gemma-4-26B-A4B-it (8/68/24 calibration)
 
