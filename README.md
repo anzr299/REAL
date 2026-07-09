@@ -106,14 +106,16 @@ no-chat with forced BOS, the Qwen-comparable protocol).
 | SVD-activation aware Rank 88 | 81.80/82.79 | 61.44 | 52.24 |
 | REAM (dagger) | 86.20/86.96 | 49.56 | 41.77 |
 
-### Rank-128 ablation + mean-baseline variant
+### Rank ablation + mean-baseline variant
 
-Follow-up sweep holding **rank = 128 for every configuration** (both compression levels, both models), plus a
-**mean-baseline** variant of activation-aware SVD. Mean-baseline strips a fixed rank-1 term `(1/H)*ones([O,H])`
-(which maps each token to the mean of its input channels) from `W` before fitting `U,V`, so all 128 rank
+Follow-up sweep at **rank 128** (and **rank 256** for the mean-baseline 25% configs), plus a **mean-baseline**
+variant of activation-aware SVD. Mean-baseline strips a fixed rank-1 term `(1/H)*ones([O,H])`
+(which maps each token to the mean of its input channels) from `W` before fitting `U,V`, so all the rank
 directions model the deviation from that mean instead of re-learning it; reconstruction adds the baseline back.
 Gemma MMLU here is **0-shot forced-BOS** (the Qwen-comparable protocol). All SVD numbers reproduced by the
 packaged `svd_compression` code (parity: Qwen plain 25% rank-128 GSM8K 87.57/89.08 vs the table's 87.49/89.16).
+
+Cells marked `eval` are still running.
 
 **Qwen3.6-35B-A3B (rank 128)**
 | Method | Frac | GSM8K str/flex | MMLU 0-shot |
@@ -122,7 +124,12 @@ packaged `svd_compression` code (parity: Qwen plain 25% rank-128 GSM8K 87.57/89.
 | SVD-activation aware + mean-baseline | 25% | 87.95/89.61 | **23.02** (collapsed) |
 | SVD plain | 50% | 83.70/84.38 | 22.95 |
 | SVD-activation aware | 50% | 72.86/73.09 | 23.02 |
-| SVD-activation aware + mean-baseline | 50% | _running_ | _running_ |
+| SVD-activation aware + mean-baseline | 50% | eval | eval |
+
+**Qwen3.6-35B-A3B (rank 256, mean-baseline)**
+| Method | Frac | GSM8K str/flex | MMLU 0-shot |
+|---|---|---|---|
+| SVD-activation aware + mean-baseline | 25% | eval | eval |
 
 **Gemma-4-26B-A4B-it (rank 128)**
 | Method | Frac | GSM8K str/flex | MMLU 0-shot |
@@ -132,7 +139,12 @@ packaged `svd_compression` code (parity: Qwen plain 25% rank-128 GSM8K 87.57/89.
 | SVD-activation aware + mean-baseline | 25% | 84.38/85.82 | **68.36** |
 | SVD plain | 50% | 85.29/86.28 | 58.69 |
 | SVD-activation aware | 50% | 84.99/85.60 | 54.25 |
-| SVD-activation aware + mean-baseline | 50% | _running_ | _running_ |
+| SVD-activation aware + mean-baseline | 50% | eval | eval |
+
+**Gemma-4-26B-A4B-it (rank 256, mean-baseline)**
+| Method | Frac | GSM8K str/flex | MMLU 0-shot |
+|---|---|---|---|
+| SVD-activation aware + mean-baseline | 25% | 84.46/85.75 | eval |
 
 **Ablation findings**
 - **Rank 128 > rank 64 at 50%** (Qwen): GSM8K plain 83.70 vs 68.08, aware 72.86 vs 36.54. More retained rank

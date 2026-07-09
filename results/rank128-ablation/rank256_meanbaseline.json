@@ -1,0 +1,12 @@
+[
+  {
+    "label": "gemma-svd-aware-w25-r256-meanbaseline",
+    "method": "actaware",
+    "frac": 0.25,
+    "rank": 256,
+    "phase": "gsm8k",
+    "gsm8k_strict": 84.46,
+    "gsm8k_flexible": 85.75,
+    "seconds": 2820
+  }
+]
