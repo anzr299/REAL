@@ -50,6 +50,8 @@ def parse_args():
     parser.add_argument("--build-saliency", action="store_true", help="compute+cache saliency then continue")
     parser.add_argument("--num-calib-sequences", type=int, default=64, help="calib sequences used for the actaware fit")
     parser.add_argument("--num-iterations", type=int, default=3, help="actaware alternating-least-squares iterations")
+    parser.add_argument("--mean-baseline", action="store_true",
+                        help="actaware: subtract fixed (1/H)*ones baseline from W before fitting U,V")
     parser.add_argument("--max-tokens-per-layer", type=int, default=20000, help="cap collected tokens per layer")
     parser.add_argument("--label", required=True)
     parser.add_argument("--out", required=True)
@@ -155,13 +157,16 @@ def main():
                 else:
                     gate_probs_for_expert = router_probs[:, expert_index]
                     new_gate = activation_aware_svd(gate_weight, layer_activations, args.rank,
-                                                    args.num_iterations, gate_weights=gate_probs_for_expert)
+                                                    args.num_iterations, gate_weights=gate_probs_for_expert,
+                                                    mean_baseline=args.mean_baseline)
                     new_up = activation_aware_svd(up_weight, layer_activations, args.rank,
-                                                  args.num_iterations, gate_weights=gate_probs_for_expert)
+                                                  args.num_iterations, gate_weights=gate_probs_for_expert,
+                                                  mean_baseline=args.mean_baseline)
                     intermediate_activations = (experts.act_fn(functional.linear(layer_activations, gate_weight))
                                                 * functional.linear(layer_activations, up_weight))
                     new_down = activation_aware_svd(down_weight, intermediate_activations, args.rank,
-                                                    args.num_iterations, gate_weights=gate_probs_for_expert)
+                                                    args.num_iterations, gate_weights=gate_probs_for_expert,
+                                                    mean_baseline=args.mean_baseline)
                     experts.gate_up_proj.data[expert_index] = torch.cat([new_gate, new_up], 0)
                     experts.down_proj.data[expert_index] = new_down
             if args.method == "actaware":

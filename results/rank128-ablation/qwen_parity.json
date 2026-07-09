@@ -1,0 +1,12 @@
+[
+  {
+    "label": "parity-qwen36-svd-w25-r128",
+    "method": "svd",
+    "frac": 0.25,
+    "rank": 128,
+    "phase": "gsm8k",
+    "gsm8k_strict": 87.57,
+    "gsm8k_flexible": 89.08,
+    "seconds": 1819
+  }
+]

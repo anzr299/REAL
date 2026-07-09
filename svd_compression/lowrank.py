@@ -41,7 +41,8 @@ def plain_svd(weight, rank):
 
 
 @torch.no_grad()
-def activation_aware_svd(weight, activations, rank, num_iterations=3, gate_weights=None):
+def activation_aware_svd(weight, activations, rank, num_iterations=3, gate_weights=None,
+                         mean_baseline=False):
     """Activation-aware rank-`rank` approximation of `weight` ([O, H]).
 
     Fits low-rank factors U ([H, R]) and V ([R, O]) to minimise ||diag(sqrt(gate)) (X W^T - X U V)||
@@ -51,17 +52,32 @@ def activation_aware_svd(weight, activations, rank, num_iterations=3, gate_weigh
     focuses on the tokens the expert actually attends to WITHOUT hard-filtering (which would
     under-determine rarely-routed experts). Falls back to plain SVD if the refinement diverges.
 
+    If `mean_baseline=True`, a fixed rank-1 baseline (1/H * ones([O, H])) is stripped from W before
+    fitting. The baseline maps each token to the mean of its input channels; all `rank` directions of
+    U,V then model the deviation from that mean rather than re-learning it. Reconstruction adds the
+    baseline back: W_approx = baseline + (U @ V).T.
+
     The SVD-init + alternating-least-squares refinement is adapted from NNCF's lora_correction:
     https://github.com/openvinotoolkit/nncf/blob/develop/nncf/quantization/algorithms/weight_compression/lora_correction.py
     (function `calculate_low_rank_matrices`; simplified to no fake-quant residual / no regularization,
     with sqrt(gate) per-token weighting added).
     """
     weight_fp32 = weight.float()
-    residual = weight_fp32.t().contiguous()          # [H, O]  (this expert has no fake-quant residual)
+    num_input_channels = weight_fp32.shape[1]        # H (contraction dim)
     X = activations.float()                          # [SS, H]
     if gate_weights is not None:
         # sqrt so that ||sqrt(gate) * .||^2 == gate * ||.||^2  (gate-weighted least squares)
         X = X * gate_weights.float().clamp_min(0).sqrt().unsqueeze(1)   # [SS, H]
+
+    # Optional fixed baseline: (1/H)*ones([O,H]).  Strips the mean-of-inputs component from W so
+    # U,V fit only the structured residual.  X @ baseline.T = X.mean(dim=-1, keepdim=True) (broadcast).
+    if mean_baseline:
+        baseline = torch.full_like(weight_fp32, 1.0 / num_input_channels)   # [O, H]
+        residual = (weight_fp32 - baseline).t().contiguous()                 # [H, O]
+        baseline_output = X.mean(dim=-1, keepdim=True)                       # [SS, 1] -> broadcast [SS,O]
+    else:
+        baseline = None
+        residual = weight_fp32.t().contiguous()                              # [H, O]
 
     # Low-rank approximation (SVD init on the residual, as in NNCF lora_correction).
     U_full, S_full, V_full = svd(residual)
@@ -69,7 +85,7 @@ def activation_aware_svd(weight, activations, rank, num_iterations=3, gate_weigh
     U = U_full[:, :rank].contiguous()                # [H, R]
     V = (torch.diag(S_full[:rank]) @ V_full[:rank, :]).contiguous()   # [R, O]
 
-    noise = X @ residual                             # [SS, H] @ [H, O] = [SS, O]  (target output X W^T)
+    target_output = X @ residual                     # [SS, O]  (target: X W^T or X (W-baseline)^T)
 
     def lstsq(a, b):
         # solves a @ x = b in the least-squares sense; gels is the CUDA-supported driver
@@ -85,16 +101,16 @@ def activation_aware_svd(weight, activations, rank, num_iterations=3, gate_weigh
     # Iterative correction of the low-rank factors.
     converged = True
     for _ in range(num_iterations):
-        # Part 1: U fixed, find V.   X @ U @ V = noise
+        # Part 1: U fixed, find V.   X @ U @ V = target_output
         XU = X @ U                                   # [SS, R]
-        V = lstsq(XU, noise)                         # [R, O]
-        # Part 2: V fixed, find U.   X @ U = noise @ V^-1
+        V = lstsq(XU, target_output)                 # [R, O]
+        # Part 2: V fixed, find U.   X @ U = target_output @ V^-1
         try:
             VI = pinv(V)                             # [O, R]
         except torch._C._LinAlgError:
             converged = False
             break
-        U = lstsq(X, noise @ VI)                     # [H, R]
+        U = lstsq(X, target_output @ VI)             # [H, R]
 
     if not converged or not torch.isfinite(U).all() or not torch.isfinite(V).all():
         # refinement diverged (too few / degenerate routed tokens) -> fall back to Frobenius SVD
@@ -102,4 +118,7 @@ def activation_aware_svd(weight, activations, rank, num_iterations=3, gate_weigh
         rank = min(rank, S_full.shape[0])
         return ((U_full[:, :rank] * S_full[:rank]) @ V_full[:rank, :]).to(weight.dtype)
 
-    return (U @ V).t().to(weight.dtype)              # [O, H], rank-R, activation-optimal
+    low_rank_weight = (U @ V).t()                    # [O, H], rank-R, activation-optimal
+    if baseline is not None:
+        low_rank_weight = low_rank_weight + baseline
+    return low_rank_weight.to(weight.dtype)

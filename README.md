@@ -106,6 +106,43 @@ no-chat with forced BOS, the Qwen-comparable protocol).
 | SVD-activation aware Rank 88 | 81.80/82.79 | 61.44 | 52.24 |
 | REAM (dagger) | 86.20/86.96 | 49.56 | 41.77 |
 
+### Rank-128 ablation + mean-baseline variant
+
+Follow-up sweep holding **rank = 128 for every configuration** (both compression levels, both models), plus a
+**mean-baseline** variant of activation-aware SVD. Mean-baseline strips a fixed rank-1 term `(1/H)*ones([O,H])`
+(which maps each token to the mean of its input channels) from `W` before fitting `U,V`, so all 128 rank
+directions model the deviation from that mean instead of re-learning it; reconstruction adds the baseline back.
+Gemma MMLU here is **0-shot forced-BOS** (the Qwen-comparable protocol). All SVD numbers reproduced by the
+packaged `svd_compression` code (parity: Qwen plain 25% rank-128 GSM8K 87.57/89.08 vs the table's 87.49/89.16).
+
+**Qwen3.6-35B-A3B (rank 128)**
+| Method | Frac | GSM8K str/flex | MMLU 0-shot |
+|---|---|---|---|
+| SVD-activation aware (from table above) | 25% | 88.25/89.31 | 79.80 |
+| SVD-activation aware + mean-baseline | 25% | 87.95/89.61 | **23.02** (collapsed) |
+| SVD plain | 50% | 83.70/84.38 | 22.95 |
+| SVD-activation aware | 50% | 72.86/73.09 | 23.02 |
+| SVD-activation aware + mean-baseline | 50% | _running_ | _running_ |
+
+**Gemma-4-26B-A4B-it (rank 128)**
+| Method | Frac | GSM8K str/flex | MMLU 0-shot |
+|---|---|---|---|
+| SVD plain | 25% | 84.15/86.13 | 69.16 |
+| SVD-activation aware | 25% | 83.09/84.31 | 67.25 |
+| SVD-activation aware + mean-baseline | 25% | 84.38/85.82 | **68.36** |
+| SVD plain | 50% | 85.29/86.28 | 58.69 |
+| SVD-activation aware | 50% | 84.99/85.60 | 54.25 |
+| SVD-activation aware + mean-baseline | 50% | _running_ | _running_ |
+
+**Ablation findings**
+- **Rank 128 > rank 64 at 50%** (Qwen): GSM8K plain 83.70 vs 68.08, aware 72.86 vs 36.54. More retained rank
+  is strictly better on any signal-bearing metric; MMLU is at the random floor (~23) for both ranks.
+- **Mean-baseline helps Gemma at 25%** (+1.3 GSM8K, +1.1 MMLU over standard activation-aware) but is
+  **not universal**: on Qwen 25% it leaves GSM8K intact (87.95) yet **collapses MMLU to random (23.02)**. Qwen
+  (tiny shared expert, no dense-MLP floor) is far more fragile, so the extra fit freedom overfits the
+  calibration domain -- math survives, broad knowledge dies. Same asymmetry as standard activation-aware at
+  aggressive rank.
+
 ### Key findings (SVD)
 1. **Plain SVD is the best knowledge-preserving method at mild compression.** Highest MMLU at 25% on both models among non-baseline methods (Qwen35B 80.12; Gemma 80.99 chat / 68.43 0-shot), beating the prune/merge baselines.
 2. **Activation-aware SVD helps only at generous rank.** It beats plain SVD at 25% on GSM8K (Qwen35B 88.25 vs 87.49; Gemma 86.28 vs 85.14) but *inverts* at 50%/low rank (Qwen35B 36.5 vs 68.1 GSM8K; Gemma 81.8 vs 84.1), because the activation fit overfits the calibration domain when the rank is tight.

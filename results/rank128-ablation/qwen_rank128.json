@@ -1,0 +1,40 @@
+[
+  {
+    "label": "qwen36-svd-plain-w50-r128",
+    "method": "svd",
+    "frac": 0.5,
+    "rank": 128,
+    "phase": "gsm8k",
+    "gsm8k_strict": 83.7,
+    "gsm8k_flexible": 84.38,
+    "seconds": 1720
+  },
+  {
+    "label": "qwen36-svd-aware-w50-r128",
+    "method": "actaware",
+    "frac": 0.5,
+    "rank": 128,
+    "phase": "gsm8k",
+    "gsm8k_strict": 72.86,
+    "gsm8k_flexible": 73.09,
+    "seconds": 1727
+  },
+  {
+    "label": "qwen36-svd-plain-w50-r128",
+    "method": "svd",
+    "frac": 0.5,
+    "rank": 128,
+    "phase": "mmlu",
+    "mmlu_0shot": 22.95,
+    "seconds": 3234
+  },
+  {
+    "label": "qwen36-svd-aware-w50-r128",
+    "method": "actaware",
+    "frac": 0.5,
+    "rank": 128,
+    "phase": "mmlu",
+    "mmlu_0shot": 23.02,
+    "seconds": 3234
+  }
+]

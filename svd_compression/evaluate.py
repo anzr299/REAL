@@ -47,21 +47,38 @@ def run_evals(model, tokenizer, adapter, tasks, label, output_json, method=None,
 
     if "mmlu" in tasks:
         language_model._batch_size = mmlu_batch_size
-        start_time = time.time()
         if requires_bos:
-            # Gemma: 5-shot chat-template multiturn (prepends <bos>); 0-shot no-chat is BOS-broken.
+            # Gemma: report BOTH MMLU protocols the tables use.
+            #   1) 5-shot chat-template multiturn (the chat template prepends <bos>) - the trustworthy one.
+            #   2) 0-shot no-chat with add_bos_token forced True (Qwen-comparable). Plain 0-shot omits the
+            #      <bos> Gemma was trained on and scores ~random, so we force it on.
+            start_time = time.time()
             print("MMLU 5-shot chat-template multiturn (BOS-safe)...", flush=True)
-            mmlu_result = evaluator.simple_evaluate(model=language_model, tasks="mmlu", num_fewshot=5,
+            chat_result = evaluator.simple_evaluate(model=language_model, tasks="mmlu", num_fewshot=5,
                                                     batch_size=mmlu_batch_size, apply_chat_template=True,
                                                     fewshot_as_multiturn=True)
-            phase_key = "mmlu_5shot_chat"
+            append_result(output_json, {**result_base, "phase": "mmlu",
+                                        "mmlu_5shot_chat": round(chat_result["results"]["mmlu"]["acc,none"] * 100, 2),
+                                        "seconds": round(time.time() - start_time)})
+
+            start_time = time.time()
+            print("MMLU 0-shot no-chat (add_bos_token forced True)...", flush=True)
+            tokenizer.add_bos_token = True
+            bos_language_model = HFLM(pretrained=model, tokenizer=tokenizer, batch_size=mmlu_batch_size,
+                                      add_bos_token=True)
+            bos_result = evaluator.simple_evaluate(model=bos_language_model, tasks="mmlu", num_fewshot=None,
+                                                   batch_size=mmlu_batch_size, random_seed=0,
+                                                   numpy_random_seed=1234, torch_random_seed=1234)
+            append_result(output_json, {**result_base, "phase": "mmlu",
+                                        "mmlu_0shot_bos": round(bos_result["results"]["mmlu"]["acc,none"] * 100, 2),
+                                        "seconds": round(time.time() - start_time)})
         else:
             # Qwen: 0-shot no-chat (paper eval_mc protocol). Fixed seeds for reproducibility.
+            start_time = time.time()
             print("MMLU 0-shot no-chat (paper protocol)...", flush=True)
             mmlu_result = evaluator.simple_evaluate(model=language_model, tasks="mmlu", num_fewshot=None,
                                                     batch_size=mmlu_batch_size, random_seed=0,
                                                     numpy_random_seed=1234, torch_random_seed=1234)
-            phase_key = "mmlu_0shot"
-        accuracy = mmlu_result["results"]["mmlu"]["acc,none"] * 100
-        append_result(output_json, {**result_base, "phase": "mmlu", phase_key: round(accuracy, 2),
-                                    "seconds": round(time.time() - start_time)})
+            append_result(output_json, {**result_base, "phase": "mmlu",
+                                        "mmlu_0shot": round(mmlu_result["results"]["mmlu"]["acc,none"] * 100, 2),
+                                        "seconds": round(time.time() - start_time)})

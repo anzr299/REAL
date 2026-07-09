@@ -1,0 +1,58 @@
+[
+  {
+    "label": "gemma-svd-plain-w25-r128",
+    "method": "svd",
+    "frac": 0.25,
+    "rank": 128,
+    "phase": "gsm8k",
+    "gsm8k_strict": 84.15,
+    "gsm8k_flexible": 86.13,
+    "seconds": 2833
+  },
+  {
+    "label": "gemma-svd-aware-w25-r128",
+    "method": "actaware",
+    "frac": 0.25,
+    "rank": 128,
+    "phase": "gsm8k",
+    "gsm8k_strict": 83.09,
+    "gsm8k_flexible": 84.31,
+    "seconds": 2825
+  },
+  {
+    "label": "gemma-svd-plain-w25-r128",
+    "method": "svd",
+    "frac": 0.25,
+    "rank": 128,
+    "phase": "mmlu",
+    "mmlu_0shot_bos": 69.16,
+    "seconds": 657
+  },
+  {
+    "label": "gemma-svd-aware-w25-r128",
+    "method": "actaware",
+    "frac": 0.25,
+    "rank": 128,
+    "phase": "mmlu",
+    "mmlu_0shot_bos": 67.25,
+    "seconds": 659
+  },
+  {
+    "label": "gemma-svd-plain-w50-r128",
+    "method": "svd",
+    "frac": 0.5,
+    "rank": 128,
+    "phase": "mmlu",
+    "mmlu_0shot_bos": 58.69,
+    "seconds": 653
+  },
+  {
+    "label": "gemma-svd-aware-w50-r128",
+    "method": "actaware",
+    "frac": 0.5,
+    "rank": 128,
+    "phase": "mmlu",
+    "mmlu_0shot_bos": 54.25,
+    "seconds": 662
+  }
+]

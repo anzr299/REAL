@@ -1,0 +1,40 @@
+[
+  {
+    "label": "qwen36-svd-aware-w25-r128-meanbaseline",
+    "method": "actaware",
+    "frac": 0.25,
+    "rank": 128,
+    "phase": "gsm8k",
+    "gsm8k_strict": 87.95,
+    "gsm8k_flexible": 89.61,
+    "seconds": 1811
+  },
+  {
+    "label": "gemma-svd-aware-w25-r128-meanbaseline",
+    "method": "actaware",
+    "frac": 0.25,
+    "rank": 128,
+    "phase": "gsm8k",
+    "gsm8k_strict": 84.38,
+    "gsm8k_flexible": 85.82,
+    "seconds": 2913
+  },
+  {
+    "label": "gemma-svd-aware-w25-r128-meanbaseline",
+    "method": "actaware",
+    "frac": 0.25,
+    "rank": 128,
+    "phase": "mmlu",
+    "mmlu_0shot_bos": 68.36,
+    "seconds": 656
+  },
+  {
+    "label": "qwen36-svd-aware-w25-r128-meanbaseline",
+    "method": "actaware",
+    "frac": 0.25,
+    "rank": 128,
+    "phase": "mmlu",
+    "mmlu_0shot": 23.02,
+    "seconds": 3239
+  }
+]

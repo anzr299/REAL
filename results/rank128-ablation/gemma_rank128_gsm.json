@@ -1,0 +1,22 @@
+[
+  {
+    "label": "gemma-svd-plain-w50-r128",
+    "method": "svd",
+    "frac": 0.5,
+    "rank": 128,
+    "phase": "gsm8k",
+    "gsm8k_strict": 85.29,
+    "gsm8k_flexible": 86.28,
+    "seconds": 2777
+  },
+  {
+    "label": "gemma-svd-aware-w50-r128",
+    "method": "actaware",
+    "frac": 0.5,
+    "rank": 128,
+    "phase": "gsm8k",
+    "gsm8k_strict": 84.99,
+    "gsm8k_flexible": 85.6,
+    "seconds": 2801
+  }
+]
