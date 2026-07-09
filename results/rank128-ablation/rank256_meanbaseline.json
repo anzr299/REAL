@@ -27,5 +27,24 @@
     "gsm8k_strict": 32.07,
     "gsm8k_flexible": 33.06,
     "seconds": 1095
+  },
+  {
+    "label": "qwen36-svd-plain-w50-r256",
+    "method": "svd",
+    "frac": 0.5,
+    "rank": 256,
+    "phase": "gsm8k",
+    "gsm8k_strict": 89.08,
+    "gsm8k_flexible": 90.22,
+    "seconds": 1791
+  },
+  {
+    "label": "qwen36-svd-aware-w25-r256-meanbaseline",
+    "method": "actaware",
+    "frac": 0.25,
+    "rank": 256,
+    "phase": "mmlu",
+    "mmlu_0shot": 22.96,
+    "seconds": 4735
   }
 ]

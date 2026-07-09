@@ -71,13 +71,14 @@ strips a fixed rank-1 `(1/H)*ones` term before fitting.
 | SVD plain | 25% | 128 | 87.49/89.16 | **80.12** |
 | SVD-activation aware | 25% | 128 | **88.25/89.31** | 79.80 |
 | SVD-activation aware + mean-baseline | 25% | 128 | 87.95/89.61 | 23.02 |
-| SVD-activation aware + mean-baseline | 25% | 256 | 32.07/33.06 | eval |
+| SVD-activation aware + mean-baseline | 25% | 256 | 32.07/33.06 | 22.96 |
 | REAP | 50% | -- | 21.30/21.91 | **61.67** |
 | REAM | 50% | -- | 79.23/80.44 | 51.64 |
 | SVD plain | 50% | 64 | 68.08/68.92 | 22.95 |
 | SVD-activation aware | 50% | 64 | 36.54/37.00 | 22.95 |
-| SVD plain | 50% | 128 | **83.70/84.38** | 22.95 |
+| SVD plain | 50% | 128 | 83.70/84.38 | 22.95 |
 | SVD-activation aware | 50% | 128 | 72.86/73.09 | 23.02 |
+| SVD plain | 50% | 256 | **89.08/90.22** | eval |
 | SVD-activation aware + mean-baseline | 50% | 128 | 71.27/71.42 | eval |
 
 ### Gemma-4-26B-A4B-it (8/68/24 calibration)
