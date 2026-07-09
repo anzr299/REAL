@@ -36,5 +36,34 @@
     "phase": "mmlu",
     "mmlu_0shot": 23.02,
     "seconds": 3239
+  },
+  {
+    "label": "gemma-svd-aware-w50-r128-meanbaseline",
+    "method": "actaware",
+    "frac": 0.5,
+    "rank": 128,
+    "phase": "gsm8k",
+    "gsm8k_strict": 82.34,
+    "gsm8k_flexible": 82.94,
+    "seconds": 2751
+  },
+  {
+    "label": "qwen36-svd-aware-w50-r128-meanbaseline",
+    "method": "actaware",
+    "frac": 0.5,
+    "rank": 128,
+    "phase": "gsm8k",
+    "gsm8k_strict": 71.27,
+    "gsm8k_flexible": 71.42,
+    "seconds": 1698
+  },
+  {
+    "label": "gemma-svd-aware-w50-r128-meanbaseline",
+    "method": "actaware",
+    "frac": 0.5,
+    "rank": 128,
+    "phase": "mmlu",
+    "mmlu_0shot_bos": 52.23,
+    "seconds": 677
   }
 ]

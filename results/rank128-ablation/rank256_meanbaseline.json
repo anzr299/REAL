@@ -17,5 +17,15 @@
     "phase": "mmlu",
     "mmlu_0shot_bos": 66.33,
     "seconds": 655
+  },
+  {
+    "label": "qwen36-svd-aware-w25-r256-meanbaseline",
+    "method": "actaware",
+    "frac": 0.25,
+    "rank": 256,
+    "phase": "gsm8k",
+    "gsm8k_strict": 32.07,
+    "gsm8k_flexible": 33.06,
+    "seconds": 1095
   }
 ]

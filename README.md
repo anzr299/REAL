@@ -49,8 +49,7 @@ deployment domain, and to any runs you compare against.
 | Qwen3.6-35B-A3B | 40 | 256 | 8 | 512 | hybrid SSM + full-attn; tiny shared expert |
 | Gemma-4-26B-A4B-it | 30 | 128 | 8 | 704 | **parallel dense MLP** per layer (a capability floor) |
 
-Ranks are set to `I/4` (25% setting) and `I/8` (50% setting) so the **per-expert compression ratio is
-identical across models** (keep the top quarter / eighth of each weak expert's singular values).
+Ranks are 128.
 
 ## Results
 
@@ -69,38 +68,38 @@ strips a fixed rank-1 `(1/H)*ones` term before fitting.
 | Baseline (256) | -- | -- | 87.87/89.08 | 83.73 |
 | REAP | 25% | -- | 86.73/87.87 | 78.09 |
 | REAM | 25% | -- | 87.64/88.78 | 68.58 |
-| SVD plain | 25% | 128 | 87.49/89.16 | 80.12 |
-| SVD-activation aware | 25% | 128 | 88.25/89.31 | 79.80 |
+| SVD plain | 25% | 128 | 87.49/89.16 | **80.12** |
+| SVD-activation aware | 25% | 128 | **88.25/89.31** | 79.80 |
 | SVD-activation aware + mean-baseline | 25% | 128 | 87.95/89.61 | 23.02 |
-| SVD-activation aware + mean-baseline | 25% | 256 | eval | eval |
-| REAP | 50% | -- | 21.30/21.91 | 61.67 |
+| SVD-activation aware + mean-baseline | 25% | 256 | 32.07/33.06 | eval |
+| REAP | 50% | -- | 21.30/21.91 | **61.67** |
 | REAM | 50% | -- | 79.23/80.44 | 51.64 |
 | SVD plain | 50% | 64 | 68.08/68.92 | 22.95 |
 | SVD-activation aware | 50% | 64 | 36.54/37.00 | 22.95 |
-| SVD plain | 50% | 128 | 83.70/84.38 | 22.95 |
+| SVD plain | 50% | 128 | **83.70/84.38** | 22.95 |
 | SVD-activation aware | 50% | 128 | 72.86/73.09 | 23.02 |
-| SVD-activation aware + mean-baseline | 50% | 128 | eval | eval |
+| SVD-activation aware + mean-baseline | 50% | 128 | 71.27/71.42 | eval |
 
 ### Gemma-4-26B-A4B-it (8/68/24 calibration)
 
 | Method | Frac | Rank | GSM8K str/flex | MMLU chat | MMLU 0-shot |
 |---|---|---|---|---|---|
 | Baseline (128) | -- | -- | 86.96/88.32 | 83.83 | 66.66 |
-| REAP | 25% | -- | 84.76/85.67 | 78.88 | 70.80 |
+| REAP | 25% | -- | 84.76/85.67 | 78.88 | **70.80** |
 | REAM | 25% | -- | 86.20/87.57 | 71.36 | 59.86 |
-| SVD plain | 25% | 176 | 85.14/86.58 | 80.99 | 68.43 |
-| SVD-activation aware | 25% | 176 | 86.28/87.72 | 80.35 | 66.04 |
+| SVD plain | 25% | 176 | 85.14/86.58 | **80.99** | 68.43 |
+| SVD-activation aware | 25% | 176 | **86.28/87.72** | 80.35 | 66.04 |
 | SVD plain | 25% | 128 | 84.15/86.13 | -- | 69.16 |
 | SVD-activation aware | 25% | 128 | 83.09/84.31 | -- | 67.25 |
 | SVD-activation aware + mean-baseline | 25% | 128 | 84.38/85.82 | -- | 68.36 |
 | SVD-activation aware + mean-baseline | 25% | 256 | 84.46/85.75 | -- | 66.33 |
 | REAP | 50% | -- | 73.69/74.68 | 59.46 | 51.42 |
-| REAM | 50% | -- | 86.20/86.96 | 49.56 | 41.77 |
-| SVD plain | 50% | 88 | 84.08/85.37 | 64.14 | 55.94 |
+| REAM | 50% | -- | **86.20/86.96** | 49.56 | 41.77 |
+| SVD plain | 50% | 88 | 84.08/85.37 | **64.14** | 55.94 |
 | SVD-activation aware | 50% | 88 | 81.80/82.79 | 61.44 | 52.24 |
-| SVD plain | 50% | 128 | 85.29/86.28 | -- | 58.69 |
+| SVD plain | 50% | 128 | 85.29/86.28 | -- | **58.69** |
 | SVD-activation aware | 50% | 128 | 84.99/85.60 | -- | 54.25 |
-| SVD-activation aware + mean-baseline | 50% | 128 | eval | -- | eval |
+| SVD-activation aware + mean-baseline | 50% | 128 | 82.34/82.94 | -- | 52.23 |
 
 ## Usage
 
