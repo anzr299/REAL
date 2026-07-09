@@ -63,18 +63,17 @@ def activation_aware_svd(weight, activations, rank, num_iterations=3, gate_weigh
     with sqrt(gate) per-token weighting added).
     """
     weight_fp32 = weight.float()
-    num_input_channels = weight_fp32.shape[1]        # H (contraction dim)
+    num_input_channels = weight_fp32.shape[1]        # H (Hidden dim)
     X = activations.float()                          # [SS, H]
     if gate_weights is not None:
         # sqrt so that ||sqrt(gate) * .||^2 == gate * ||.||^2  (gate-weighted least squares)
         X = X * gate_weights.float().clamp_min(0).sqrt().unsqueeze(1)   # [SS, H]
 
     # Optional fixed baseline: (1/H)*ones([O,H]).  Strips the mean-of-inputs component from W so
-    # U,V fit only the structured residual.  X @ baseline.T = X.mean(dim=-1, keepdim=True) (broadcast).
+    # U,V fit only the structured residual, then it is added back at reconstruction.
     if mean_baseline:
         baseline = torch.full_like(weight_fp32, 1.0 / num_input_channels)   # [O, H]
         residual = (weight_fp32 - baseline).t().contiguous()                 # [H, O]
-        baseline_output = X.mean(dim=-1, keepdim=True)                       # [SS, 1] -> broadcast [SS,O]
     else:
         baseline = None
         residual = weight_fp32.t().contiguous()                              # [H, O]
