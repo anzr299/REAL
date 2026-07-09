@@ -53,8 +53,8 @@ identical across models** (keep the top quarter / eighth of each weak expert's s
 
 ## Results
 
-Rows marked with a dagger are external baselines (REAP prune / REAM merge), shown for comparison, not
-implemented in this repo. SVD rows are this repo's methods.
+REAP and REAM rows are external baselines (prune / merge), shown for comparison, not implemented in this
+repo. SVD rows are this repo's methods.
 
 GSM8K is reported as `strict/flexible` exact-match. MMLU is **0-shot** no-chat (with forced BOS on Gemma;
 Qwen is trained without BOS so plain-text scoring is correct). Gemma also has a **chat** column (5-shot
@@ -66,14 +66,14 @@ strips a fixed rank-1 `(1/H)*ones` term before fitting.
 | Method | Frac | Rank | GSM8K str/flex | MMLU 0-shot |
 |---|---|---|---|---|
 | Baseline (256) | -- | -- | 87.87/89.08 | 83.73 |
-| REAP (dagger) | 25% | -- | 86.73/87.87 | 78.09 |
-| REAM (dagger) | 25% | -- | 87.64/88.78 | 68.58 |
+| REAP | 25% | -- | 86.73/87.87 | 78.09 |
+| REAM | 25% | -- | 87.64/88.78 | 68.58 |
 | SVD plain | 25% | 128 | 87.49/89.16 | 80.12 |
 | SVD-activation aware | 25% | 128 | 88.25/89.31 | 79.80 |
 | SVD-activation aware + mean-baseline | 25% | 128 | 87.95/89.61 | 23.02 |
 | SVD-activation aware + mean-baseline | 25% | 256 | eval | eval |
-| REAP (dagger) | 50% | -- | 21.30/21.91 | 61.67 |
-| REAM (dagger) | 50% | -- | 79.23/80.44 | 51.64 |
+| REAP | 50% | -- | 21.30/21.91 | 61.67 |
+| REAM | 50% | -- | 79.23/80.44 | 51.64 |
 | SVD plain | 50% | 64 | 68.08/68.92 | 22.95 |
 | SVD-activation aware | 50% | 64 | 36.54/37.00 | 22.95 |
 | SVD plain | 50% | 128 | 83.70/84.38 | 22.95 |
@@ -85,16 +85,16 @@ strips a fixed rank-1 `(1/H)*ones` term before fitting.
 | Method | Frac | Rank | GSM8K str/flex | MMLU chat | MMLU 0-shot |
 |---|---|---|---|---|---|
 | Baseline (128) | -- | -- | 86.96/88.32 | 83.83 | 66.66 |
-| REAP (dagger) | 25% | -- | 84.76/85.67 | 78.88 | 70.80 |
-| REAM (dagger) | 25% | -- | 86.20/87.57 | 71.36 | 59.86 |
+| REAP | 25% | -- | 84.76/85.67 | 78.88 | 70.80 |
+| REAM | 25% | -- | 86.20/87.57 | 71.36 | 59.86 |
 | SVD plain | 25% | 176 | 85.14/86.58 | 80.99 | 68.43 |
 | SVD-activation aware | 25% | 176 | 86.28/87.72 | 80.35 | 66.04 |
 | SVD plain | 25% | 128 | 84.15/86.13 | -- | 69.16 |
 | SVD-activation aware | 25% | 128 | 83.09/84.31 | -- | 67.25 |
 | SVD-activation aware + mean-baseline | 25% | 128 | 84.38/85.82 | -- | 68.36 |
 | SVD-activation aware + mean-baseline | 25% | 256 | 84.46/85.75 | -- | 66.33 |
-| REAP (dagger) | 50% | -- | 73.69/74.68 | 59.46 | 51.42 |
-| REAM (dagger) | 50% | -- | 86.20/86.96 | 49.56 | 41.77 |
+| REAP | 50% | -- | 73.69/74.68 | 59.46 | 51.42 |
+| REAM | 50% | -- | 86.20/86.96 | 49.56 | 41.77 |
 | SVD plain | 50% | 88 | 84.08/85.37 | 64.14 | 55.94 |
 | SVD-activation aware | 50% | 88 | 81.80/82.79 | 61.44 | 52.24 |
 | SVD plain | 50% | 128 | 85.29/86.28 | -- | 58.69 |
