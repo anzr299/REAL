@@ -46,5 +46,14 @@
     "phase": "mmlu",
     "mmlu_0shot": 22.96,
     "seconds": 4735
+  },
+  {
+    "label": "qwen36-svd-plain-w50-r256",
+    "method": "svd",
+    "frac": 0.5,
+    "rank": 256,
+    "phase": "mmlu",
+    "mmlu_0shot": 22.96,
+    "seconds": 3180
   }
 ]
